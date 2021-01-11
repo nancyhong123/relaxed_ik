@@ -20,12 +20,15 @@ import roslaunch
 import os
 import tf
 import math
-
+import rospkg
 
 if __name__ == '__main__':
     # Don't change this code####################################################################################
     rospy.init_node('configuration')
+    r = rospkg.RosPack()
 
-    vars = RelaxedIK_vars('relaxedIK',os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name,joint_names,ee_fixed_joints,
+    dvrk_urdf_path = r.get_path('dvrk_model')
+    urdf_path = dvrk_urdf_path + '/model/' + urdf_file_name
+    vars = RelaxedIK_vars('relaxedIK',urdf_path,joint_names,ee_fixed_joints,
                           joint_ordering,init_state=starting_config, collision_file=collision_file_name, config_override=True)
 

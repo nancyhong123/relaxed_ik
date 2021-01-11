@@ -164,6 +164,11 @@ double orientation_multiEE_obj(p::object frames, p::object goal_quats, p::list w
         ee_quat2[2] = -ee_quat[2];
         ee_quat2[3] = -ee_quat[3];
 
+        // ee_quat2[0] = ee_quat[0];
+        // ee_quat2[1] = ee_quat[1];
+        // ee_quat2[2] = ee_quat[2];
+        // ee_quat2[3] = ee_quat[3];
+
         p::object goal_quat_py = p::extract<p::object>(goal_quats[q]);
         vector<double> goal_quat(4);
         goal_quat[0] = p::extract<double>(goal_quat_py[0]);

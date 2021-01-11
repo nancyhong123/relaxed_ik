@@ -20,12 +20,18 @@ import rospy
 import roslaunch
 import os
 import tf
+import rospkg
 
 
 if __name__ == '__main__':
     rospy.init_node('collision_viewer')
+    r = rospkg.RosPack()
+    # urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
+    dvrk_urdf_path = r.get_path('dvrk_model')
 
-    urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
+    urdf_file = open(dvrk_urdf_path + '/model/' +urdf_file_name,'r' )
+    print("Opening urdf... ",urdf_file)
+
     urdf_string = urdf_file.read()
     rospy.set_param('robot_description', urdf_string)
     js_pub = rospy.Publisher('joint_states',JointState,queue_size=5)
@@ -40,7 +46,8 @@ if __name__ == '__main__':
     launch = roslaunch.parent.ROSLaunchParent(uuid, [launch_path])
     launch.start()
 
-    vars = RelaxedIK_vars('relaxedIK',os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name,joint_names,ee_fixed_joints,
+    urdf_path = dvrk_urdf_path + '/model/' + urdf_file_name
+    vars = RelaxedIK_vars('relaxedIK',urdf_path,joint_names,ee_fixed_joints,
                           joint_ordering,init_state=starting_config, collision_file=collision_file_name, pre_config=True)
 
     sample_states = vars.collision_graph.sample_states

@@ -4,6 +4,9 @@ from ..GROOVE.GROOVE_Utils.objective import Objective, get_groove_global_vars, o
 from ..Utils import tf_fast as Tf
 from ..Utils.geometry_utils import *
 from ..Utils.joint_utils import *
+import rospy
+from pyquaternion import Quaternion
+# from vision_pipeline.feature_processor_debug import point_to_line_dist 
 
 # try:
 #     from boost import objectives_ext
@@ -21,6 +24,7 @@ def objective_master_relaxedIK(x):
 
 ########################################################################################################################
 
+## not used
 class Position_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -41,6 +45,40 @@ class Position_Obj(Objective):
         g = 2
         return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
+# class Position_MultiEE_Obj(Objective):
+#     def __init__(self, *args): pass
+#     def isVelObj(self): return False
+#     def name(self): return 'Position_MultiEE'
+
+#     def __call__(self, x, vars):
+#         if vars.c_boost:
+#             x_val = objectives_ext.position_multiEE_obj(vars.frames, vars.goal_positions, [1.0, 1.0])
+#         else:
+#             x_val_sum = 0.0
+
+#             for i, f in enumerate(vars.frames):
+#                 positions = f[0]
+#                 eePos = positions[-1]
+#                 goal_pos = vars.goal_positions[i]
+#                 diff = (eePos - goal_pos)
+#                 norm_ord = 2
+#                 x_val = np.linalg.norm(diff, ord=norm_ord)
+#                 x_val_sum += x_val
+
+#             x_val = x_val_sum
+
+#         t = 0.0
+#         d = 2.0
+#         c = .1
+#         f = 10
+#         g = 2
+
+#         if vars.c_boost:
+#             return objectives_ext.nloss(x_val, t, d, c, f, g)
+#         else:
+#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+
 class Position_MultiEE_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -56,24 +94,44 @@ class Position_MultiEE_Obj(Objective):
                 positions = f[0]
                 eePos = positions[-1]
                 goal_pos = vars.goal_positions[i]
-                diff = (eePos - goal_pos)
-                norm_ord = 2
-                x_val = np.linalg.norm(diff, ord=norm_ord)
+
+                z_axis = np.array([0, 1, 0])
+
+                eeMat = f[1][-1]
+            
+                new_mat = np.zeros((4, 4))
+                new_mat[0:3, 0:3] = eeMat
+                new_mat[3, 3] = 1
+                
+                ee_quat = Tf.quaternion_from_matrix(new_mat)
+                # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
+
+                ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
+
+                ee_orientation_vect = ee_rot.rotate(z_axis)
+
+                ee_orientation_vect = ee_orientation_vect/np.linalg.norm(ee_orientation_vect)
+
+                end = 10*np.array(ee_orientation_vect) + np.array(eePos)
+                
+
+                x_val = Tf.point_to_line_dist(goal_pos,eePos,end)
                 x_val_sum += x_val
 
             x_val = x_val_sum
 
         t = 0.0
         d = 2.0
-        c = .1
+        c = .005
         f = 10
         g = 2
-
+        
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
+## not used
 class Orientation_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -92,6 +150,7 @@ class Orientation_Obj(Objective):
 
         q = ee_quat
         ee_quat2 = [-q[0],-q[1],-q[2],-q[3]]
+        # ee_quat2 = [q[0],q[1],q[2],q[3]]
 
         norm_ord = 2
         # start = time.time()
@@ -113,6 +172,104 @@ class Orientation_Obj(Objective):
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
 
+# class Orientation_MultiEE_Obj(Objective):
+#     def __init__(self, *args): pass
+#     def isVelObj(self): return False
+#     def name(self): return 'Orientation_MultiEE'
+
+#     def __call__(self, x, vars):
+#         if vars.c_boost:
+#             x_val = objectives_ext.orientation_multiEE_obj(vars.frames, vars.goal_quats, [1.0, 1.0])
+#         else:
+#             x_val_sum = 0.0
+
+#             for i, f in enumerate(vars.frames):
+#                 eeMat = f[1][-1]
+
+#                 goal_quat = vars.goal_quats[i]
+#                 new_mat = np.zeros((4, 4))
+#                 new_mat[0:3, 0:3] = eeMat
+#                 new_mat[3, 3] = 1
+
+#                 ee_quat = Tf.quaternion_from_matrix(new_mat)
+
+#                 q = ee_quat
+#                 ee_quat2 = [-q[0], -q[1], -q[2], -q[3]]
+#                 # ee_quat2 = [q[0], q[1], q[2], q[3]]
+
+#                 norm_ord = 2
+#                 disp = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat), ord=norm_ord)
+#                 disp2 = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat2), ord=norm_ord)
+
+#                 x_val = min(disp, disp2)
+#                 x_val_sum += x_val
+
+#             x_val = x_val_sum
+
+#         t = 0.0
+#         d = 2.0
+#         c = .1
+#         f = 10
+#         g = 2
+#         if vars.c_boost:
+#             return objectives_ext.nloss(x_val, t, d, c, f, g)
+#         else:
+#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+# class Orientation_MultiEE_Obj(Objective):
+#     def __init__(self, *args): pass
+#     def isVelObj(self): return False
+#     def name(self): return 'Orientation_MultiEE'
+
+#     def __call__(self, x, vars):
+#         if vars.c_boost:
+#             x_val = objectives_ext.orientation_multiEE_obj(vars.frames, vars.goal_quats, [1.0, 1.0])
+#         else:
+#             x_val_sum = 0.0
+
+#             for i, f in enumerate(vars.frames):
+#                 eeMat = f[1][-1]
+
+#                 goal_quat = vars.goal_quats[i]
+#                 new_mat = np.zeros((4, 4))
+#                 new_mat[0:3, 0:3] = eeMat
+#                 new_mat[3, 3] = 1
+
+#                 ee_quat = Tf.quaternion_from_matrix(new_mat)
+
+#                 q = ee_quat
+#                 ee_quat2 = [-q[0], -q[1], -q[2], -q[3]]
+#                 # ee_quat2 = [q[0], q[1], q[2], q[3]]
+
+#                 norm_ord = 2
+#                 disp = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat), ord=norm_ord)
+#                 disp2 = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat2), ord=norm_ord)
+
+#                 x_val = min(disp, disp2)
+#                 x_val_sum += x_val
+
+#             x_val = x_val_sum
+
+#         # t = 0.0
+#         # d = 2.0
+#         # c = .1
+#         # f = 10
+#         # g = 2
+
+#         t = (-1)*3.0
+#         d = 60.0
+#         c = 1e14
+#         f = 0.2
+#         g = 10.0
+#         if vars.c_boost:
+#             return objectives_ext.nloss(x_val, t, d, c, f, g)
+#         else:
+#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+
+
+
+
 class Orientation_MultiEE_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -120,42 +277,272 @@ class Orientation_MultiEE_Obj(Objective):
 
     def __call__(self, x, vars):
         if vars.c_boost:
-            x_val = objectives_ext.orientation_multiEE_obj(vars.frames, vars.goal_quats, [1.0, 1.0])
+            x_val = objectives_ext.Orientation_MultiEE_Obj(vars.frames, vars.goal_quats, [1.0, 1.0])
         else:
             x_val_sum = 0.0
 
             for i, f in enumerate(vars.frames):
-                eeMat = f[1][-1]
+                z_axis = np.array([0, 1, 0])
 
-                goal_quat = vars.goal_quats[i]
+                eeMat = f[1][-1]
+            
                 new_mat = np.zeros((4, 4))
                 new_mat[0:3, 0:3] = eeMat
                 new_mat[3, 3] = 1
-
+                
                 ee_quat = Tf.quaternion_from_matrix(new_mat)
+                # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
 
-                q = ee_quat
-                ee_quat2 = [-q[0], -q[1], -q[2], -q[3]]
+                ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
 
-                norm_ord = 2
-                disp = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat), ord=norm_ord)
-                disp2 = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat2), ord=norm_ord)
+                ee_orientation_vect = ee_rot.rotate(z_axis)
 
-                x_val = min(disp, disp2)
+                ee_orientation_vect = ee_orientation_vect/np.linalg.norm(ee_orientation_vect)
+
+                goal_quat = vars.goal_quats[i]
+                goal_rot = Quaternion(goal_quat[0],goal_quat[1],goal_quat[2],goal_quat[3])
+
+                goal_orientation_vect = goal_rot.rotate(z_axis)
+                x_val = Tf.calculate_angle_mag(ee_orientation_vect,goal_orientation_vect)
+
                 x_val_sum += x_val
 
             x_val = x_val_sum
 
         t = 0.0
         d = 2.0
-        c = .1
+        c = math.pi/2
         f = 10
         g = 2
+
+        # t = (-1)*3.0
+        # d = 60.0
+        # c = 1e14
+        # f = 0.2
+        # g = 10.0
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
+# class Distance_Obj(Objective):
+#     def __init__(self, *args): pass
+#     def isVelObj(self): return False
+#     def name(self): return 'Distance_Obj'
+
+#     def __call__(self, x, vars):
+        
+#         x_val_sum = 0.0
+#         d = 0.1
+#         for i, f in enumerate(vars.frames):
+#             positions = f[0]
+#             eePos = positions[-1]
+#             goal_pos = vars.goal_positions[i]
+#             norm_ord = 2
+#             diff = np.linalg.norm(eePos - goal_pos, ord=norm_ord)
+#             x_val = abs(diff-d)
+
+#             x_val_sum += x_val
+
+#         x_val = x_val_sum
+
+#         t = 0.0
+#         d = 2.0
+#         c = .1
+#         f = 10
+#         g = 2
+
+#         if vars.c_boost:
+#             return objectives_ext.nloss(x_val, t, d, c, f, g)
+#         else:
+#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+class Distance_Obj(Objective):
+    def __init__(self, *args): pass
+    def isVelObj(self): return False
+    def name(self): return 'Distance_Obj'
+
+    def __call__(self, x, vars):
+        if vars.c_boost:
+            x_val = objectives_ext.position_multiEE_obj(vars.frames, vars.goal_positions, [1.0, 1.0])
+        else:
+            x_val_sum = 0.0
+
+            for i, f in enumerate(vars.frames):
+                positions = f[0]
+                eePos = positions[-1]
+                goal_pos = vars.goal_positions[i]
+                diff = (eePos - goal_pos)
+                norm_ord = 2
+                x_val = np.linalg.norm(diff, ord=norm_ord)
+                x_val_sum += x_val
+
+            x_val = x_val_sum
+
+        t = 0.1
+        d = 2.0
+        c = .01
+        f = 10
+        g = 2
+
+        if vars.c_boost:
+            return objectives_ext.nloss(x_val, t, d, c, f, g)
+        else:
+            return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+class Min_Roll(Objective):
+    def __init__(self, *args): pass
+    def isVelObj(self): return False
+    def name(self): return 'Min_Roll'
+
+    def __call__(self, x, vars):
+
+        x_val_sum = 0.0
+
+        for i, f in enumerate(vars.frames):
+            x_axis = np.array([0, 0, 1])
+            y_axis = np.array([1,0,0])
+            world_z_axis = np.array([0,0,1])
+            eeMat = f[1][-1]
+        
+            new_mat = np.zeros((4, 4))
+            new_mat[0:3, 0:3] = eeMat
+            new_mat[3, 3] = 1
+            
+            ee_quat = Tf.quaternion_from_matrix(new_mat)
+            # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
+
+            ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
+
+            ee_orientation_vect = ee_rot.rotate(x_axis)
+
+            ee_orientation_vect = ee_orientation_vect/np.linalg.norm(ee_orientation_vect)
+            # upwards_vect = ee_rot.rotate(y_axis)
+            # upwards_vect = upwards_vect/np.linalg.norm(upwards_vect)
+            x_val = np.dot(ee_orientation_vect,world_z_axis)
+            # if upwards_vect[2] < 0.0:
+            #     x_val += abs(upwards_vect[2])*10.0
+            # rospy.logerr("upwards vect " + str(upwards_vect))
+            x_val_sum += x_val
+
+        x_val = x_val_sum
+
+        t = 0.0
+        d = 2.0
+        c = 0.1
+        f = 10
+        g = 4
+
+        # t = (-1)*3.0
+        # d = 60.0
+        # c = 1e14
+        # f = 0.2
+        # g = 10.0
+        if vars.c_boost:
+            return objectives_ext.nloss(x_val, t, d, c, f, g)
+        else:
+            return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+class Upright_View_Obj(Objective):
+    def __init__(self, *args): pass
+    def isVelObj(self): return False
+    def name(self): return 'Upright_View_Obj'
+
+    def __call__(self, x, vars):
+
+        x_val_sum = 0.0
+
+        for i, f in enumerate(vars.frames):
+            y_axis = np.array([1,0,0])
+            eeMat = f[1][-1]
+        
+            new_mat = np.zeros((4, 4))
+            new_mat[0:3, 0:3] = eeMat
+            new_mat[3, 3] = 1
+            
+            ee_quat = Tf.quaternion_from_matrix(new_mat)
+            # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
+
+            ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
+
+            upwards_vect = ee_rot.rotate(y_axis)
+            upwards_vect = upwards_vect/np.linalg.norm(upwards_vect)
+            x_val = 0.0
+
+            if upwards_vect[2] < 0.0:
+                x_val += abs(upwards_vect[2])*5.0
+
+            x_val_sum += x_val
+
+        x_val = x_val_sum
+
+        t = 0.0
+        d = 2.0
+        c = 0.5
+        f = 10
+        g = 4
+
+        # t = (-1)*3.0
+        # d = 60.0
+        # c = 1e14
+        # f = 0.2
+        # g = 10.0
+        if vars.c_boost:
+            return objectives_ext.nloss(x_val, t, d, c, f, g)
+        else:
+            return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+# class Min_Roll_Parallel(Objective):
+#     def __init__(self, *args): pass
+#     def isVelObj(self): return False
+#     def name(self): return 'Min_Roll'
+
+#     def __call__(self, x, vars):
+
+#         x_val_sum = 0.0
+
+#         for i, f in enumerate(vars.frames):
+#             x_axis = np.array([0, 0, 1])
+#             world_z_axis = np.array([0,0,1])
+#             eeMat = f[1][-1]
+        
+#             new_mat = np.zeros((4, 4))
+#             new_mat[0:3, 0:3] = eeMat
+#             new_mat[3, 3] = 1
+            
+#             ee_quat = Tf.quaternion_from_matrix(new_mat)
+#             # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
+
+#             ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
+
+#             ee_orientation_vect = ee_rot.rotate(x_axis)
+
+#             ee_orientation_vect = ee_orientation_vect/np.linalg.norm(ee_orientation_vect)
+#             # upwards_vect = ee_rot.rotate(y_axis)
+#             # upwards_vect = upwards_vect/np.linalg.norm(upwards_vect)
+#             x_val = np.dot(ee_orientation_vect,world_z_axis)
+#             # if upwards_vect[2] < 0.0:
+#             #     x_val += abs(upwards_vect[2])*10.0
+#             # rospy.logerr("upwards vect " + str(upwards_vect))
+#             x_val_sum += x_val
+
+#         x_val = x_val_sum
+
+#         t = 0.0
+#         d = 2.0
+#         c = 0.1
+#         f = 10
+#         g = 4
+
+#         # t = (-1)*3.0
+#         # d = 60.0
+#         # c = 1e14
+#         # f = 0.2
+#         # g = 10.0
+#         if vars.c_boost:
+#             return objectives_ext.nloss(x_val, t, d, c, f, g)
+#         else:
+#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
 
 class Min_Jt_Vel_Obj(Objective):
@@ -176,6 +563,12 @@ class Min_Jt_Vel_Obj(Objective):
         f = 10.0
         g = 2
 
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
+
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
@@ -190,12 +583,20 @@ class Min_EE_Vel_Obj(Objective):
 
     def __call__(self, x, vars):
         jtPt = vars.frames[0][-1]
-        x_val = np.linalg.norm(vars.ee_pos - jtPt)
+
+        x_val = np.linalg.norm(np.array(vars.ee_positions) - np.array(jtPt))
         t = 0.0
         d = 2.0
         c = .1
         f = 10.0
         g = 2
+
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
+
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
@@ -226,6 +627,13 @@ class Min_Jt_Accel_Obj(Objective):
         c = .1
         f = 10.0
         g = 2
+
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
+
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
@@ -238,8 +646,8 @@ class Min_EE_Accel_Obj(Objective):
 
     def __call__(self, x, vars):
         jtPt = vars.frames[0][-1]
-        prev_jtPt_2 = np.array(vars.prev_ee_pos)
-        prev_jtPt = np.array(vars.ee_pos)
+        prev_jtPt_2 = np.array(vars.prev_ee_positions)
+        prev_jtPt = np.array(vars.ee_positions)
 
         v2 = prev_jtPt - prev_jtPt_2
         v1 = jtPt - prev_jtPt
@@ -250,8 +658,14 @@ class Min_EE_Accel_Obj(Objective):
         t = 0.0
         d = 2.0
         c = .2
-        f = 0.0
+        f = 0.
         g = 2
+
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
@@ -287,6 +701,12 @@ class Min_Jt_Jerk_Obj(Objective):
         f = 0.0
         g = 2
 
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
+
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
@@ -299,9 +719,9 @@ class Min_EE_Jerk_Obj(Objective):
 
     def __call__(self, x, vars):
         jtPt = vars.frames[0][-1]
-        prev_jtPt_3 = np.array(vars.prev_ee_pos2)
-        prev_jtPt_2 = np.array(vars.prev_ee_pos)
-        prev_jtPt = np.array(vars.ee_pos)
+        prev_jtPt_3 = np.array(vars.prev_ee_positions2)
+        prev_jtPt_2 = np.array(vars.prev_ee_positions)
+        prev_jtPt = np.array(vars.ee_positions)
 
         v3 = prev_jtPt_2 - prev_jtPt_3
         v2 = prev_jtPt - prev_jtPt_2
@@ -318,6 +738,12 @@ class Min_EE_Jerk_Obj(Objective):
         c = .2
         f = 1.0
         g = 2
+
+        # t = 0.0
+        # d = 2.0
+        # c = .01
+        # f = 1.0
+        # g = 4
         return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2))) + f * (x_val - t) ** g
 
 
@@ -398,6 +824,7 @@ class Collision_Avoidance_nn(Objective):
         d = 2
         c = 1.85
         f = .004
+        # f = 10.0
         g = 2
         if vars.c_boost:
             return objectives_ext.nloss(x_val, t, d, c, f, g)

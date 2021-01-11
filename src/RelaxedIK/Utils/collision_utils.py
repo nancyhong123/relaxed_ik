@@ -62,8 +62,9 @@ class Collision_Object_Container:
 
     def add_collision_objects_from_robot(self, robot, exclusion=[]):
         numDOF = robot.numDOF
-
+        print("# DOF: ", numDOF)
         frames_list = robot.getFrames(numDOF*[0])
+        print("frames_list", frames_list)
         for arm_idx in range(len(frames_list)):
             frames = frames_list[arm_idx]
             jtPts = frames[0]
@@ -231,6 +232,7 @@ class Collision_Box(Collision_Object):
         self.marker.scale.x = self.x
         self.marker.scale.y = self.y
         self.marker.scale.z = self.z
+    
 
 class Collision_Sphere(Collision_Object):
     def __init__(self, collision_dict):

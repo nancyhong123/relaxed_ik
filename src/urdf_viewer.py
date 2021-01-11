@@ -16,6 +16,7 @@ import roslaunch
 import tf
 import os
 from sensor_msgs.msg import JointState
+import rospkg
 
 joint_state = None
 def joint_state_cb(data):
@@ -25,7 +26,13 @@ def joint_state_cb(data):
 if __name__ == '__main__':
     rospy.init_node('urdf_viewer')
 
-    urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
+    r = rospkg.RosPack()
+    dvrk_urdf_path = r.get_path('dvrk_model')
+
+    # urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
+    urdf_file = open( dvrk_urdf_path + '/model/' +urdf_file_name,'r' )
+    print("Opening urdf... ",urdf_file)
+    
     urdf_string = urdf_file.read()
     rospy.set_param('robot_description', urdf_string)
     tf_pub = tf.TransformBroadcaster()

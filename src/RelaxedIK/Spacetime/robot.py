@@ -106,3 +106,7 @@ class Robot:
             all_frames.append(frames)
 
         return all_frames
+
+    def getYoshikawaScore(self,x):
+        score = arm.getYoshikawaMeasure(x)
+        return score

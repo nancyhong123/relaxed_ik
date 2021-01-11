@@ -5,6 +5,10 @@ import numpy as np
 import numpy.random as r
 from RelaxedIK.Utils.filter import EMA_filter
 
+# from GROOVE.GROOVE_Utils.constraint import Constraint
+# from GROOVE.GROOVE_Utils.objective import get_groove_global_vars
+# from GROOVE_RelaxedIK.relaxedIK_constraint import Singularity_Avoidance_Constraint
+
 def rand_vec(bounds):
     vec = []
     for b in bounds:
@@ -55,6 +59,7 @@ class RelaxedIK(object):
             self.vars.goal_quats = []
             for i, q in enumerate(goal_quats):
                 self.vars.goal_quats.append(T.quaternion_multiply(q, self.vars.init_ee_quats[i]))
+
         elif self.vars.rotation_mode == 'absolute':
             self.vars.goal_quats = []
             for i, q in enumerate(goal_quats):
@@ -125,3 +130,11 @@ class RelaxedIK(object):
         self.vars.prev_goal_quat3 = self.vars.goal_quat
         self.vars.prev_goal_quat2 = self.vars.goal_quat
         self.vars.prev_goal_quat = self.vars.goal_quat
+
+    def get_manipuabiity_score(self, x):
+        # signularit_avoidance_obj = Singularity_Avoidance_Constraint()
+        # score = signularit_avoidance_obj.func(x)
+        # vars = get_groove_global_vars()
+
+        score = self.vars.robot.getYoshikawaScore(x)
+        print("score: ", score)

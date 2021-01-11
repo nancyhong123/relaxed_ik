@@ -14,7 +14,14 @@ import rospy
 import os
 from sklearn.externals import joblib
 
-
+# weight_priors=(50.0,40.0,0.3,0.3,0.3,1.0,2.0)
+# weight_priors=(50.0,50.0,0.0,0.0,0.0,0.0,0.0)
+# weight_priors=(30.0,10.0,1.0,0.3,0.3,0.3,0.3)
+# weight_priors=(70.0,3.0,30.0,20.0,2.0,1.0,2.0,0.5,0.005,0.1)
+# weight_priors=(90.0,2.0,40.0,20.0,5.0,0.3,0.1,0.1,0.3,0.3, 0.3,0.0,0.1)
+# weight_priors=(90.0,2.0,40.0,20.0,5.0,0.5,0.5,1.0,0.3,0.3, 0.3,0.0,0.1)
+# weight_priors=(90.0,2.0,40.0,20.0,5.0,0.5,0.5,1.0,0.3,0.3, 0.3,0.0,0.1)
+# weight_priors=(90.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0.0,0.0,0.1)
 
 class RelaxedIK_vars(Vars):
     def __init__(self, name,
@@ -27,9 +34,9 @@ class RelaxedIK_vars(Vars):
                  init_state=6*[0],
                  rotation_mode = 'relative',  # could be 'absolute' or 'relative'
                  position_mode = 'relative',
-                 objectives=(Position_MultiEE_Obj(), Orientation_MultiEE_Obj(), Min_Jt_Vel_Obj(),Min_Jt_Accel_Obj(),Min_Jt_Jerk_Obj(), Joint_Limit_Obj(), Collision_Avoidance_nn()),
-                 weight_funcs=(Identity_Weight(), Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(), Identity_Weight()),
-                 weight_priors=(50.0,40.0,0.3,0.3,0.3,1.0,2.0),
+                 objectives=(Position_MultiEE_Obj(), Orientation_MultiEE_Obj(), Distance_Obj(), Min_Roll(), Upright_View_Obj(), Min_EE_Vel_Obj(), Min_EE_Accel_Obj(), Min_EE_Jerk_Obj(), Min_Jt_Vel_Obj(),Min_Jt_Accel_Obj(),Min_Jt_Jerk_Obj(), Joint_Limit_Obj(), Collision_Avoidance_nn()),
+                 weight_funcs=(Identity_Weight(), Identity_Weight(), Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(), Identity_Weight()),
+                 weight_priors=(80.0,20.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0),
                  constraints=(),
                  bounds=(),
                  collision_file='',
@@ -79,6 +86,7 @@ class RelaxedIK_vars(Vars):
 
         if full_arms == []:
             for i in xrange(self.num_chains):
+                print("urdf path: ", urdf_path)
                 urdf_robot, arm, arm_c, tree = urdf_load(urdf_path, '', '', full_joint_lists[i], fixed_ee_joints[i])
                 if self.c_boost:
                     self.arms.append(arm_c)
@@ -140,7 +148,9 @@ class RelaxedIK_vars(Vars):
         velocity_scale = 1.0
         if velocity_constraints:
             for i in xrange(self.robot.numDOF):
-                self.constraints += (Joint_Velocity_Constraint(i,velocity_scale),)
+                self.constraints += (Joint_Velocity_Constraint(i,velocity_scale), )
+        # self.constraints += ( Face_Target_Constraint(), )
+        self.constraints += (Singularity_Avoidance_Constraint(),)
 
 
         if not self.numDOF == len(init_state):
