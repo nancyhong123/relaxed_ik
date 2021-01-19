@@ -22,6 +22,7 @@ from sklearn.externals import joblib
 # weight_priors=(90.0,2.0,40.0,20.0,5.0,0.5,0.5,1.0,0.3,0.3, 0.3,0.0,0.1)
 # weight_priors=(90.0,2.0,40.0,20.0,5.0,0.5,0.5,1.0,0.3,0.3, 0.3,0.0,0.1)
 # weight_priors=(90.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0.0,0.0,0.1)
+# weight_priors=(80.0,20.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0)
 
 class RelaxedIK_vars(Vars):
     def __init__(self, name,
@@ -36,7 +37,7 @@ class RelaxedIK_vars(Vars):
                  position_mode = 'relative',
                  objectives=(Position_MultiEE_Obj(), Orientation_MultiEE_Obj(), Distance_Obj(), Min_Roll(), Upright_View_Obj(), Min_EE_Vel_Obj(), Min_EE_Accel_Obj(), Min_EE_Jerk_Obj(), Min_Jt_Vel_Obj(),Min_Jt_Accel_Obj(),Min_Jt_Jerk_Obj(), Joint_Limit_Obj(), Collision_Avoidance_nn()),
                  weight_funcs=(Identity_Weight(), Identity_Weight(), Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(), Identity_Weight()),
-                 weight_priors=(80.0,20.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0),
+                 weight_priors=(80.0,2.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0),
                  constraints=(),
                  bounds=(),
                  collision_file='',

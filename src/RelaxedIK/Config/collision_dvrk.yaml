@@ -9,11 +9,11 @@ boxes:
     rotation: [1.560, -0.021, 2.682]
     translation: [-0.001, -0.003, -0.179]
 
-  - name: box1
-    parameters: [2.0202e-02,4.1616e-02,1.0034e-01] # r
-    coordinate_frame: 0
-    rotation: [1.560, -0.021, 2.682]
-    translation: [-0.001, -0.003, -0.179]
+  # - name: box1
+  #   parameters: [2.0202e-02,4.1616e-02,1.0034e-01] # r
+  #   coordinate_frame: 0
+  #   rotation: [1.560, -0.021, 2.682]
+  #   translation: [-0.001, -0.003, -0.179]
 
   - name: box2
     parameters: [4.9720e-01, 6.9520e-01,1.0000e-01] # r

@@ -79,6 +79,7 @@ class Position_Obj(Objective):
 #             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
 
+## encourages the camera to point towards the visual target
 class Position_MultiEE_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -216,60 +217,9 @@ class Orientation_Obj(Objective):
 #         else:
 #             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
-# class Orientation_MultiEE_Obj(Objective):
-#     def __init__(self, *args): pass
-#     def isVelObj(self): return False
-#     def name(self): return 'Orientation_MultiEE'
-
-#     def __call__(self, x, vars):
-#         if vars.c_boost:
-#             x_val = objectives_ext.orientation_multiEE_obj(vars.frames, vars.goal_quats, [1.0, 1.0])
-#         else:
-#             x_val_sum = 0.0
-
-#             for i, f in enumerate(vars.frames):
-#                 eeMat = f[1][-1]
-
-#                 goal_quat = vars.goal_quats[i]
-#                 new_mat = np.zeros((4, 4))
-#                 new_mat[0:3, 0:3] = eeMat
-#                 new_mat[3, 3] = 1
-
-#                 ee_quat = Tf.quaternion_from_matrix(new_mat)
-
-#                 q = ee_quat
-#                 ee_quat2 = [-q[0], -q[1], -q[2], -q[3]]
-#                 # ee_quat2 = [q[0], q[1], q[2], q[3]]
-
-#                 norm_ord = 2
-#                 disp = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat), ord=norm_ord)
-#                 disp2 = np.linalg.norm(Tf.quaternion_disp(goal_quat, ee_quat2), ord=norm_ord)
-
-#                 x_val = min(disp, disp2)
-#                 x_val_sum += x_val
-
-#             x_val = x_val_sum
-
-#         # t = 0.0
-#         # d = 2.0
-#         # c = .1
-#         # f = 10
-#         # g = 2
-
-#         t = (-1)*3.0
-#         d = 60.0
-#         c = 1e14
-#         f = 0.2
-#         g = 10.0
-#         if vars.c_boost:
-#             return objectives_ext.nloss(x_val, t, d, c, f, g)
-#         else:
-#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
 
-
-
-
+## encourages the camera optical axis to align the the feature normal
 class Orientation_MultiEE_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -325,38 +275,7 @@ class Orientation_MultiEE_Obj(Objective):
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
-# class Distance_Obj(Objective):
-#     def __init__(self, *args): pass
-#     def isVelObj(self): return False
-#     def name(self): return 'Distance_Obj'
-
-#     def __call__(self, x, vars):
-        
-#         x_val_sum = 0.0
-#         d = 0.1
-#         for i, f in enumerate(vars.frames):
-#             positions = f[0]
-#             eePos = positions[-1]
-#             goal_pos = vars.goal_positions[i]
-#             norm_ord = 2
-#             diff = np.linalg.norm(eePos - goal_pos, ord=norm_ord)
-#             x_val = abs(diff-d)
-
-#             x_val_sum += x_val
-
-#         x_val = x_val_sum
-
-#         t = 0.0
-#         d = 2.0
-#         c = .1
-#         f = 10
-#         g = 2
-
-#         if vars.c_boost:
-#             return objectives_ext.nloss(x_val, t, d, c, f, g)
-#         else:
-#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
-
+## maintains constant feature-to-camera distance
 class Distance_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -390,6 +309,7 @@ class Distance_Obj(Objective):
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
+## prevents rotation about the camera's optical axis
 class Min_Roll(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -443,6 +363,7 @@ class Min_Roll(Objective):
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
+## maintains an upright view of the surgical environment 
 class Upright_View_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -491,59 +412,6 @@ class Upright_View_Obj(Objective):
             return objectives_ext.nloss(x_val, t, d, c, f, g)
         else:
             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
-
-# class Min_Roll_Parallel(Objective):
-#     def __init__(self, *args): pass
-#     def isVelObj(self): return False
-#     def name(self): return 'Min_Roll'
-
-#     def __call__(self, x, vars):
-
-#         x_val_sum = 0.0
-
-#         for i, f in enumerate(vars.frames):
-#             x_axis = np.array([0, 0, 1])
-#             world_z_axis = np.array([0,0,1])
-#             eeMat = f[1][-1]
-        
-#             new_mat = np.zeros((4, 4))
-#             new_mat[0:3, 0:3] = eeMat
-#             new_mat[3, 3] = 1
-            
-#             ee_quat = Tf.quaternion_from_matrix(new_mat)
-#             # ee_quat = Tf.quaternion_multiply(ee_quat,vars.init_ee_quats[i])
-
-#             ee_rot = Quaternion(ee_quat[0],ee_quat[1],ee_quat[2],ee_quat[3])
-
-#             ee_orientation_vect = ee_rot.rotate(x_axis)
-
-#             ee_orientation_vect = ee_orientation_vect/np.linalg.norm(ee_orientation_vect)
-#             # upwards_vect = ee_rot.rotate(y_axis)
-#             # upwards_vect = upwards_vect/np.linalg.norm(upwards_vect)
-#             x_val = np.dot(ee_orientation_vect,world_z_axis)
-#             # if upwards_vect[2] < 0.0:
-#             #     x_val += abs(upwards_vect[2])*10.0
-#             # rospy.logerr("upwards vect " + str(upwards_vect))
-#             x_val_sum += x_val
-
-#         x_val = x_val_sum
-
-#         t = 0.0
-#         d = 2.0
-#         c = 0.1
-#         f = 10
-#         g = 4
-
-#         # t = (-1)*3.0
-#         # d = 60.0
-#         # c = 1e14
-#         # f = 0.2
-#         # g = 10.0
-#         if vars.c_boost:
-#             return objectives_ext.nloss(x_val, t, d, c, f, g)
-#         else:
-#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
-
 
 class Min_Jt_Vel_Obj(Objective):
     def __init__(self, *args): pass

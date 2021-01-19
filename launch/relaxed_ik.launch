@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-   <arg name="config_file_name" value="relaxedIK_600_samples_collision.config" />
+   <arg name="config_file_name" value="relaxedIK_self_collision.config" />
 
    <!-- ##################################################################################### -->
 

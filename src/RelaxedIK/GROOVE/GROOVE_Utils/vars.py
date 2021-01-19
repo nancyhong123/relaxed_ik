@@ -41,7 +41,7 @@ class Vars:
 
         for c in self.constraints:
             self.constraint_publishers.append(rospy.Publisher('/constraint/' + c.name(), Float32, queue_size=5))
-            rospy.logerr(" intializing constraint:"+ c.name())
+            rospy.loginfo(" intializing constraint:"+ c.name())
 
         for wf in self.weight_funcs:
             self.weight_func_publishers.append(rospy.Publisher('/weight_function/' + wf.name(), Float32, queue_size=5))
