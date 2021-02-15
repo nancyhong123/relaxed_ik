@@ -26,18 +26,18 @@ if __name__ == '__main__':
     rospy.init_node('kinematics_eval_node')
     # while eepg == None: continue
     trial  = 0
-    control_method = 'orientation'
-    # control_method = 'optimization'
+    # control_method = 'reactive'
+    control_method = 'optimization'
     # control_method = 'centering'
 
     r = rospkg.RosPack()
     path = r.get_path('testing')
     results_location = path + '/test_results/orientation_3d/kinematic/'
     # self.error_filepath = results_location + tracking_method + "_trial_" + str(trial) + ".csv"
-    # path_type = "ideal"
+    path_type = "ideal"
     # path_type = "noisy_25"
     # path_type = "noisy_36"
-    path_type = "noisy_71"
+    # path_type = "noisy_71"
     if not os.path.exists(results_location):
         os.makedirs(results_location)
     error_filepath = results_location + 'kinematic_results_' + control_method+'_' + path_type +'_trial_'+ str(trial) + ".csv"

@@ -53,7 +53,7 @@ class RelaxedIK(object):
         return RelaxedIK(vars)
 
 
-    def solve(self, goal_positions, goal_quats, prev_state=None, vel_objectives_on=True, unconstrained=True, verbose_output=False, max_iter=11, maxtime=.05, rand_start=False):
+    def solve(self, goal_positions, goal_quats, cam_pos_goals, prev_state=None, vel_objectives_on=True, unconstrained=True, verbose_output=False, max_iter=11, maxtime=.05, rand_start=False):
 
         if self.vars.rotation_mode == 'relative':
             self.vars.goal_quats = []
@@ -83,6 +83,16 @@ class RelaxedIK(object):
             self.vars.goal_positions = []
             for i, p in enumerate(goal_positions):
                 self.vars.goal_positions.append(np.array(p))
+
+
+        if self.vars.position_mode == 'relative':
+            self.vars.cam_goal_positions = []
+            for i, p in enumerate(cam_pos_goals):
+                self.vars.cam_goal_positions.append(np.array(p) + self.vars.init_ee_positions[i])
+        elif self.vars.position_mode == 'absolute':
+            self.vars.cam_goal_positions = []
+            for i, p in enumerate(cam_goal_positions):
+                self.vars.cam_goal_positions.append(np.array(p))
 
         if prev_state == None:
             initSol = self.vars.xopt

@@ -36,6 +36,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(100)
     while not rospy.is_shutdown():
         pose_goals = eepg.ee_poses
+        cam_goals = eepg.cam_poses
         header = eepg.header
         num_poses = len(pose_goals)
         if not num_poses == num_chains:
@@ -45,6 +46,8 @@ if __name__ == '__main__':
 
         pos_goals = []
         quat_goals = []
+        
+        pos_goals_cam = []
 
         for p in pose_goals:
             pos_x = p.position.x
@@ -56,10 +59,18 @@ if __name__ == '__main__':
             quat_y = p.orientation.y
             quat_z = p.orientation.z
 
+
             pos_goals.append([pos_x, pos_y, pos_z])
             quat_goals.append([quat_w, quat_x, quat_y, quat_z])
+        for c in cam_goals:
+            pos_x = c.position.x
+            pos_y = c.position.y
+            pos_z = c.position.z
 
-        xopt = relaxedIK.solve(pos_goals, quat_goals)
+            pos_goals_cam.append([pos_x, pos_y, pos_z])
+
+
+        xopt = relaxedIK.solve(pos_goals, quat_goals, pos_goals_cam)
         ja = JointAngles()
         ja.header = header
         for x in xopt:

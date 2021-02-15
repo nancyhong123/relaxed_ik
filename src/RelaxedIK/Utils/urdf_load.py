@@ -90,6 +90,9 @@ def convertToArmJointList(urdf_robot, full_joint_list, fixedJoint, Debug=False):
                         axes.append(toAxisLetter(js.axis))
                         joint_limits.append((js.limit.lower, js.limit.upper))
                         velocity_limits.append(js.limit.velocity)
+                    # axes.append(toAxisLetter(js.axis))
+                    # joint_limits.append((js.limit.lower, js.limit.upper))
+                    # velocity_limits.append(js.limit.velocity)
                     firstPass = False
                 else:
                     joint_types.append(js.type)
@@ -99,6 +102,9 @@ def convertToArmJointList(urdf_robot, full_joint_list, fixedJoint, Debug=False):
                         axes.append(toAxisLetter(js.axis))
                         joint_limits.append((js.limit.lower, js.limit.upper))
                         velocity_limits.append(js.limit.velocity)
+                    # axes.append(toAxisLetter(js.axis))
+                    # joint_limits.append((js.limit.lower, js.limit.upper))
+                    # velocity_limits.append(js.limit.velocity)
 
 
         # add any additional joints in the chain listed after the end joint

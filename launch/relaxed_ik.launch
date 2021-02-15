@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-   <arg name="config_file_name" value="relaxedIK_self_collision.config" />
+   <arg name="config_file_name" value="relaxedIK_pickup_more_samples.config" />
 
    <!-- ##################################################################################### -->
 
    <param name="config_file_name" value="$(arg config_file_name)"/>
-   <node pkg="relaxed_ik" type="relaxed_ik_node.py" name="relaxed_ik_node" />
+   <node pkg="relaxed_ik" type="relaxed_ik_node.py" name="relaxed_ik_node"/>
 
 </launch>

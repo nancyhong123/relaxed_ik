@@ -45,41 +45,6 @@ class Position_Obj(Objective):
         g = 2
         return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
 
-# class Position_MultiEE_Obj(Objective):
-#     def __init__(self, *args): pass
-#     def isVelObj(self): return False
-#     def name(self): return 'Position_MultiEE'
-
-#     def __call__(self, x, vars):
-#         if vars.c_boost:
-#             x_val = objectives_ext.position_multiEE_obj(vars.frames, vars.goal_positions, [1.0, 1.0])
-#         else:
-#             x_val_sum = 0.0
-
-#             for i, f in enumerate(vars.frames):
-#                 positions = f[0]
-#                 eePos = positions[-1]
-#                 goal_pos = vars.goal_positions[i]
-#                 diff = (eePos - goal_pos)
-#                 norm_ord = 2
-#                 x_val = np.linalg.norm(diff, ord=norm_ord)
-#                 x_val_sum += x_val
-
-#             x_val = x_val_sum
-
-#         t = 0.0
-#         d = 2.0
-#         c = .1
-#         f = 10
-#         g = 2
-
-#         if vars.c_boost:
-#             return objectives_ext.nloss(x_val, t, d, c, f, g)
-#         else:
-#             return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
-
-
-## encourages the camera to point towards the visual target
 class Position_MultiEE_Obj(Objective):
     def __init__(self, *args): pass
     def isVelObj(self): return False
@@ -92,11 +57,47 @@ class Position_MultiEE_Obj(Objective):
             x_val_sum = 0.0
 
             for i, f in enumerate(vars.frames):
+                
+                positions = f[0]
+                eePos = positions[-1]
+                goal_pos = vars.cam_goal_positions[i]
+                diff = (eePos - goal_pos)
+                norm_ord = 2
+                x_val = np.linalg.norm(diff, ord=norm_ord)
+                x_val_sum += x_val
+
+            x_val = x_val_sum
+
+        t = 0.0
+        d = 2.0
+        c = .1
+        f = 10
+        g = 2
+
+        if vars.c_boost:
+            return objectives_ext.nloss(x_val, t, d, c, f, g)
+        else:
+            return (-math.e ** ((-(x_val - t) ** d) / (2.0 * c ** 2)) ) + f * (x_val - t) ** g
+
+
+## encourages the camera to point towards the visual target
+class Lookat_Obj(Objective):
+    def __init__(self, *args): pass
+    def isVelObj(self): return False
+    def name(self): return 'Lookat_Obj'
+
+    def __call__(self, x, vars):
+        if vars.c_boost:
+            x_val = objectives_ext.position_multiEE_obj(vars.frames, vars.goal_positions, [1.0, 1.0])
+        else:
+            x_val_sum = 0.0
+
+            for i, f in enumerate(vars.frames):
                 positions = f[0]
                 eePos = positions[-1]
                 goal_pos = vars.goal_positions[i]
 
-                z_axis = np.array([0, 1, 0])
+                z_axis = np.array([0, 0, 1])
 
                 eeMat = f[1][-1]
             
@@ -261,7 +262,7 @@ class Orientation_MultiEE_Obj(Objective):
 
         t = 0.0
         d = 2.0
-        c = math.pi/2
+        c = math.pi/4
         f = 10
         g = 2
 
@@ -320,8 +321,8 @@ class Min_Roll(Objective):
         x_val_sum = 0.0
 
         for i, f in enumerate(vars.frames):
-            x_axis = np.array([0, 0, 1])
-            y_axis = np.array([1,0,0])
+            x_axis = np.array([1, 0, 0])
+            y_axis = np.array([0,1,0])
             world_z_axis = np.array([0,0,1])
             eeMat = f[1][-1]
         
@@ -374,7 +375,7 @@ class Upright_View_Obj(Objective):
         x_val_sum = 0.0
 
         for i, f in enumerate(vars.frames):
-            y_axis = np.array([1,0,0])
+            y_axis = np.array([0,1,0])
             eeMat = f[1][-1]
         
             new_mat = np.zeros((4, 4))

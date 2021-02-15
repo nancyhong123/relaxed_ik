@@ -38,6 +38,7 @@ class Collision_NN_Trainer:
         self.bounds = self.cg.robot.bounds
 
         for i in xrange(num_samples):
+            # print("bounds", self.bounds)
             rvec = rand_vec(self.bounds)
             frames = self.robot.getFrames(rvec)
             score = self.cg.get_collision_score(frames)

@@ -23,6 +23,7 @@ from sklearn.externals import joblib
 # weight_priors=(90.0,2.0,40.0,20.0,5.0,0.5,0.5,1.0,0.3,0.3, 0.3,0.0,0.1)
 # weight_priors=(90.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0.0,0.0,0.1)
 # weight_priors=(80.0,20.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0)
+# weight_priors=(60.0,8.0,0.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0,0.0,0.0,10.0)
 
 class RelaxedIK_vars(Vars):
     def __init__(self, name,
@@ -35,9 +36,9 @@ class RelaxedIK_vars(Vars):
                  init_state=6*[0],
                  rotation_mode = 'relative',  # could be 'absolute' or 'relative'
                  position_mode = 'relative',
-                 objectives=(Position_MultiEE_Obj(), Orientation_MultiEE_Obj(), Distance_Obj(), Min_Roll(), Upright_View_Obj(), Min_EE_Vel_Obj(), Min_EE_Accel_Obj(), Min_EE_Jerk_Obj(), Min_Jt_Vel_Obj(),Min_Jt_Accel_Obj(),Min_Jt_Jerk_Obj(), Joint_Limit_Obj(), Collision_Avoidance_nn()),
-                 weight_funcs=(Identity_Weight(), Identity_Weight(), Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(), Identity_Weight()),
-                 weight_priors=(80.0,2.0,40.0,20.0,5.0,0.5,0.0,0.0,0.3,0.0, 0.0,0.0,1.0),
+                 objectives=(Lookat_Obj(),Orientation_MultiEE_Obj() ,Distance_Obj(),Min_Roll(), Upright_View_Obj(), Min_EE_Vel_Obj(), Min_EE_Accel_Obj(), Min_EE_Jerk_Obj(), Min_Jt_Vel_Obj(),Min_Jt_Accel_Obj(),Min_Jt_Jerk_Obj(), Joint_Limit_Obj(), Collision_Avoidance_nn()),
+                 weight_funcs=(Identity_Weight(),Identity_Weight(), Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(),Identity_Weight(), Identity_Weight(),Identity_Weight(), Identity_Weight()),
+                 weight_priors=(80.0,20.0,40.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0.0,0.1,0.0),
                  constraints=(),
                  bounds=(),
                  collision_file='',
@@ -169,6 +170,14 @@ class RelaxedIK_vars(Vars):
         self.prev_goal_positions3 = self.goal_positions
         self.prev_goal_positions2 = self.goal_positions
         self.prev_goal_positions = self.goal_positions
+
+        self.cam_goal_positions = []
+        for i in range(self.num_chains):
+            self.cam_goal_positions.append(np.array([0,0,0]))
+        self.prev_cam_goal_positions3 = self.cam_goal_positions
+        self.prev_cam_goal_positions2 = self.cam_goal_positions
+        self.prev_cam_goal_positions = self.cam_goal_positions
+
         self.goal_quats = []
         for i in range(self.num_chains):
             self.goal_quats.append([1,0,0,0])
@@ -213,6 +222,9 @@ class RelaxedIK_vars(Vars):
         self.prev_goal_positions3 = self.prev_goal_positions2
         self.prev_goal_positions2 = self.prev_goal_positions
         self.prev_goal_positions =  self.goal_positions
+        self.prev_cam_goal_positions3 = self.prev_cam_goal_positions2
+        self.prev_cam_goal_positions2 = self.prev_cam_goal_positions
+        self.prev_cam_goal_positions =  self.cam_goal_positions
         self.solveID += 1.0
         self.total_run_time = rospy.get_time() - self.start_time
         self.avg_solution_time = self.total_run_time / self.solveID
