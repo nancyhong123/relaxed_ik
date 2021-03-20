@@ -3,29 +3,6 @@ sample_states: [[-0.569516, -0.313545, 0.232407, 1.012004, -1.336191, -0.921477]
 
 
 boxes:
-  - name: box1
-    parameters: [2.0202e-02,4.1616e-02,1.0034e-01] # r
-    coordinate_frame: 0
-    rotation: [1.560, -0.021, 2.682]
-    translation: [-0.001, -0.003, -0.179]
-
-  - name: box1
-    parameters: [2.0202e-02,4.1616e-02,1.0034e-01] # r
-    coordinate_frame: 0
-    rotation: [1.560, -0.021, 2.682]
-    translation: [-0.001, -0.003, -0.179]
-
-  - name: box2
-    parameters: [4.9720e-01, 6.9520e-01,1.0000e-01] # r
-    coordinate_frame: 0
-    rotation:  [-0.000, -0.000, -1.955]
-    translation:  [-0.134, 0.038, -0.253]
-  - name: box2
-    parameters: [4.9720e-01, 6.9520e-01,1.0000e-01] # r
-    coordinate_frame: 0
-    rotation:  [-0.000, -0.000, -1.955]
-    translation:  [-0.134, 0.038, -0.253]
-
 
 spheres:
 # #   - name: sphere1
@@ -34,6 +11,11 @@ spheres:
 # #     rotation: [0,0,0]
 # #     translation: [0, 0.000, 0]
 ellipsoids:
+  - name: ellipse1
+    parameters: [0.005,0.01,0.005]
+    coordinate_frame: 6
+    rotation: [0,0,0]
+    translation: [0, 0, 0]
   - name: ellipse1
     parameters: [0.005,0.01,0.005]
     coordinate_frame: 6

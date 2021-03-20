@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-   <arg name="config_file_name" value="relaxedIK_pickup_more_samples.config" />
+   <arg name="config_file_name" value="relaxedIK.config" />
 
    <!-- ##################################################################################### -->
 

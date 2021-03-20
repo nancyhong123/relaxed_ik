@@ -85,8 +85,10 @@ fixed_frame = 'PSM2_psm_base_link'
 #                'LEFT_WRIST_PITCH', 'LEFT_WRIST_YAW_2'] ]
 #   example 2 shows what this would be for a single end-effector robot, specifically using the UR5 robot
 #   ex2: [ ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'] ]
-joint_names = [['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw','tool_wrist_caudier_ee', 'camera_extension','camera_ee']]
-# joint_names = [['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw']]
+
+joint_names = [['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw']]
+
+# joint_names = [['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw','tool_wrist_caudier_ee', 'camera_extension','camera_ee']]
 ######################################################################################################
 
 
@@ -106,7 +108,7 @@ joint_names = [['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'oute
 #   ex1: [ 'WAIST', 'RIGHT_SHOULDER_PITCH', 'RIGHT_SHOULDER_ROLL', 'RIGHT_SHOULDER_YAW', 'RIGHT_ELBOW', 'RIGHT_WRIST_YAW',
 #               'RIGHT_WRIST_PITCH', 'RIGHT_WRIST_YAW_2','LEFT_SHOULDER_PITCH', 'LEFT_SHOULDER_ROLL', 'LEFT_SHOULDER_YAW',
 #               'LEFT_ELBOW', 'LEFT_WRIST_YAW', 'LEFT_WRIST_PITCH', 'LEFT_WRIST_YAW_2' ]
-# joint_ordering = ['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw']
+
 joint_ordering = ['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'outer_wrist_pitch', 'outer_wrist_yaw']
 
 ######################################################################################################
@@ -123,8 +125,9 @@ joint_ordering = ['outer_yaw','outer_pitch','outer_insertion', 'outer_roll', 'ou
 #   ex1: ee_fixed_joints = ['RIGHT_HAND', 'LEFT_HAND']
 #   For example 2, using the UR5, this is a single chain robot, so it will only have a single end-effector joint
 #   ex2: ee_fixed_joints = ['ee_fixed_joint']
-ee_fixed_joints = [ 'camera_ee' ]
-# ee_fixed_joints = [ 'tool_wrist_caudier_ee' ]
+
+ee_fixed_joints = [ 'tool_wrist_caudier_ee' ]
+# ee_fixed_joints = [ 'camera_ee' ]
 
 ######################################################################################################
 
@@ -265,7 +268,7 @@ def joint_state_define(x):
 #
 #   Please provide the name of the collision file that you have been filling out in the RelaxedIK/Config directory:
 #   ex: collision_file_name = 'collision.yaml'
-collision_file_name = 'collision_dvrk_pickup.yaml'
+collision_file_name = 'collision_dvrk.yaml'
 ###########################################################################################################
 
 
@@ -303,7 +306,7 @@ collision_file_name = 'collision_dvrk_pickup.yaml'
 #   RelaxedIK/Config directory.
 #   Please provide the name of the file that you renamed your config file to
 #   ex: config_file_name = 'ur5.config'
-config_file_name = 'relaxedIK_pickup.config'
+config_file_name = ''
 ######################################################################################################
 
 

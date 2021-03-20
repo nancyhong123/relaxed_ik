@@ -108,8 +108,7 @@ def calculate_angle_mag(computed_vector,gt_vector):
             angle = math.pi - angle
         elif angle < -math.pi/2:
             angle = math.pi + angle
-        
-        print("angle magnitude: ", angle)
+
         return angle
 
 if __name__ == '__main__':

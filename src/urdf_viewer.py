@@ -27,10 +27,9 @@ if __name__ == '__main__':
     rospy.init_node('urdf_viewer')
 
     r = rospkg.RosPack()
-    dvrk_urdf_path = r.get_path('dvrk_model')
 
     # urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
-    urdf_file = open( dvrk_urdf_path + '/model/' +urdf_file_name,'r' )
+    urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
     print("Opening urdf... ",urdf_file)
     
     urdf_string = urdf_file.read()

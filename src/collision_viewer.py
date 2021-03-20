@@ -26,10 +26,8 @@ import rospkg
 if __name__ == '__main__':
     rospy.init_node('collision_viewer')
     r = rospkg.RosPack()
-    # urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
-    dvrk_urdf_path = r.get_path('dvrk_model')
+    urdf_file = open(os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name, 'r')
 
-    urdf_file = open(dvrk_urdf_path + '/model/' +urdf_file_name,'r' )
     print("Opening urdf... ",urdf_file)
 
     urdf_string = urdf_file.read()
@@ -46,7 +44,8 @@ if __name__ == '__main__':
     launch = roslaunch.parent.ROSLaunchParent(uuid, [launch_path])
     launch.start()
 
-    urdf_path = dvrk_urdf_path + '/model/' + urdf_file_name
+    urdf_path = os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name
+    
     vars = RelaxedIK_vars('relaxedIK',urdf_path,joint_names,ee_fixed_joints,
                           joint_ordering,init_state=starting_config, collision_file=collision_file_name, pre_config=True)
 

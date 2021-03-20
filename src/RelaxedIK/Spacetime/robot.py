@@ -28,7 +28,6 @@ class Robot:
 
         for i in range(self.numChains):
             for j in self.full_joint_lists[i]:
-                print("num ind", str(j))
                 idx = self.__get_index_from_joint_order(j)
                 if not idx == None:
                     self.subchain_indices[i].append(idx)

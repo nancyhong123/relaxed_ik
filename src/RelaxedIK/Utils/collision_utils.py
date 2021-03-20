@@ -70,10 +70,8 @@ class Collision_Object_Container:
             jtPts = frames[0]
 
             numLinks = (len(jtPts)-1)
-            print("num links: ", numLinks)
             for l in range(numLinks):
                 curr_idx = numLinks*arm_idx + l
-                print("curr link: ", l)
                 if not curr_idx in exclusion:
                     ptA = jtPts[l]
                     ptB = jtPts[l+1]
@@ -85,7 +83,6 @@ class Collision_Object_Container:
                     #     continue
                     # if dis < 0.1:
                     #     continue
-                    print("curr link not in exclusion: ", l)
 
                     cylinder = Collision_Cylinder.init_with_arguments('robotLink_' + str(arm_idx) + '_' + str(l),
                                                                       curr_idx,[0,0,0],midPt,[self.robot_link_radius,dis])

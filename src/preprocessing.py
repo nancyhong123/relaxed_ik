@@ -27,8 +27,8 @@ if __name__ == '__main__':
     rospy.init_node('configuration')
     r = rospkg.RosPack()
 
-    dvrk_urdf_path = r.get_path('dvrk_model')
-    urdf_path = dvrk_urdf_path + '/model/' + urdf_file_name
+   
+    urdf_path = os.path.dirname(__file__) + '/RelaxedIK/urdfs/' + urdf_file_name
     vars = RelaxedIK_vars('relaxedIK',urdf_path,joint_names,ee_fixed_joints,
                           joint_ordering,init_state=starting_config, collision_file=collision_file_name, config_override=True)
 

@@ -97,7 +97,7 @@ class Lookat_Obj(Objective):
                 eePos = positions[-1]
                 goal_pos = vars.goal_positions[i]
 
-                z_axis = np.array([0, 0, 1])
+                z_axis = np.array([0, 1, 0])
 
                 eeMat = f[1][-1]
             
@@ -321,8 +321,8 @@ class Min_Roll(Objective):
         x_val_sum = 0.0
 
         for i, f in enumerate(vars.frames):
-            x_axis = np.array([1, 0, 0])
-            y_axis = np.array([0,1,0])
+            x_axis = np.array([0, 0, -1])
+            y_axis = np.array([-1,0,0])
             world_z_axis = np.array([0,0,1])
             eeMat = f[1][-1]
         
@@ -375,7 +375,7 @@ class Upright_View_Obj(Objective):
         x_val_sum = 0.0
 
         for i, f in enumerate(vars.frames):
-            y_axis = np.array([0,1,0])
+            y_axis = np.array([-1,0,0])
             eeMat = f[1][-1]
         
             new_mat = np.zeros((4, 4))
